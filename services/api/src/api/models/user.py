@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from api.models.base import Base
 
 if TYPE_CHECKING:
+    from api.models.document import Document
     from api.models.fact import ProfileFact
     from api.models.profile import Profile
 
@@ -27,6 +28,11 @@ class User(Base):
     )
     facts: Mapped[list["ProfileFact"]] = relationship(
         "ProfileFact",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    documents: Mapped[list["Document"]] = relationship(
+        "Document",
         back_populates="user",
         cascade="all, delete-orphan",
     )

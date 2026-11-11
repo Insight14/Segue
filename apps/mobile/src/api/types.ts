@@ -1,6 +1,6 @@
 /**
  * Auto-generated OpenAPI TypeScript definitions for Convo Glasses Mobile Client.
- * Do not edit manually. Generated from OpenAPI schema.
+ * Generated from OpenAPI schema.
  */
 
 export type FactKind =
@@ -72,4 +72,33 @@ export interface ListFactsParams {
   kind?: FactKind;
   confirmed?: boolean;
   tag?: string;
+}
+
+export interface DocumentUploadRequest {
+  filename: string;
+  mime?: string;
+}
+
+export interface DocumentUploadResponse {
+  document_id: string;
+  upload_url: string;
+  s3_key: string;
+}
+
+export interface DocumentProcessResponse {
+  document_id: string;
+  status: string;
+  message: string;
+}
+
+export interface DocumentResponse {
+  id: string;
+  user_id: string;
+  filename: string;
+  mime: string;
+  status: string;
+  parsed_text?: string | null;
+  error_message?: string | null;
+  created_at: string;
+  updated_at: string;
 }

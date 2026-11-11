@@ -41,6 +41,24 @@ async def list_facts(
     return facts
 
 
+@router.get("/review", response_model=list[FactResponse], status_code=status.HTTP_200_OK)
+async def list_facts_for_review(
+    user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[ProfileFact]:
+    """List unconfirmed candidate facts awaiting user review and confirmation."""
+    stmt = (
+        select(ProfileFact)
+        .where(
+            ProfileFact.user_id == user.id,
+            ProfileFact.confirmed.is_(False),
+        )
+        .order_by(ProfileFact.created_at.desc())
+    )
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+
 @router.post("", response_model=FactResponse, status_code=status.HTTP_201_CREATED)
 async def create_fact(
     payload: FactCreate,
@@ -92,6 +110,32 @@ async def update_fact(
         else:
             setattr(fact, field, value)
 
+    await db.commit()
+    await db.refresh(fact)
+    return fact
+
+
+@router.post("/{fact_id}/confirm", response_model=FactResponse, status_code=status.HTTP_200_OK)
+async def confirm_fact(
+    fact_id: uuid.UUID,
+    user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> ProfileFact:
+    """Explicitly confirm an unconfirmed candidate fact proposed from resume or agent."""
+    stmt = select(ProfileFact).where(
+        ProfileFact.id == fact_id,
+        ProfileFact.user_id == user.id,
+    )
+    result = await db.execute(stmt)
+    fact = result.scalar_one_or_none()
+
+    if not fact:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Fact not found",
+        )
+
+    fact.confirmed = True
     await db.commit()
     await db.refresh(fact)
     return fact

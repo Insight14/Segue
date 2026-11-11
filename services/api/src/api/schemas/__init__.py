@@ -1,3 +1,9 @@
+from api.schemas.document import (
+    DocumentProcessResponse,
+    DocumentResponse,
+    DocumentUploadRequest,
+    DocumentUploadResponse,
+)
 from api.schemas.fact import FactCreate, FactKind, FactResponse, FactSource, FactUpdate
 from api.schemas.profile import ProfileBase, ProfileResponse, ProfileUpdate
 from api.schemas.user import UserResponse
@@ -12,4 +18,8 @@ __all__ = [
     "FactUpdate",
     "FactResponse",
     "UserResponse",
+    "DocumentUploadRequest",
+    "DocumentUploadResponse",
+    "DocumentProcessResponse",
+    "DocumentResponse",
 ]

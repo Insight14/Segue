@@ -1,4 +1,8 @@
 import type {
+  DocumentProcessResponse,
+  DocumentResponse,
+  DocumentUploadRequest,
+  DocumentUploadResponse,
   FactCreate,
   FactResponse,
   FactUpdate,
@@ -84,10 +88,20 @@ export class ConvoGlassesClient {
     return this.fetch<FactResponse[]>(endpoint);
   }
 
+  async getReviewFacts(): Promise<FactResponse[]> {
+    return this.fetch<FactResponse[]>("/v1/facts/review");
+  }
+
   async createFact(data: FactCreate): Promise<FactResponse> {
     return this.fetch<FactResponse>("/v1/facts", {
       method: "POST",
       body: JSON.stringify(data),
+    });
+  }
+
+  async confirmFact(id: string): Promise<FactResponse> {
+    return this.fetch<FactResponse>(`/v1/facts/${id}/confirm`, {
+      method: "POST",
     });
   }
 
@@ -102,5 +116,27 @@ export class ConvoGlassesClient {
     return this.fetch<void>(`/v1/facts/${id}`, {
       method: "DELETE",
     });
+  }
+
+  // Documents
+  async createDocumentUploadUrl(data: DocumentUploadRequest): Promise<DocumentUploadResponse> {
+    return this.fetch<DocumentUploadResponse>("/v1/documents/upload-url", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async processDocument(id: string): Promise<DocumentProcessResponse> {
+    return this.fetch<DocumentProcessResponse>(`/v1/documents/${id}/process`, {
+      method: "POST",
+    });
+  }
+
+  async getDocument(id: string): Promise<DocumentResponse> {
+    return this.fetch<DocumentResponse>(`/v1/documents/${id}`);
+  }
+
+  async listDocuments(): Promise<DocumentResponse[]> {
+    return this.fetch<DocumentResponse[]>("/v1/documents");
   }
 }
