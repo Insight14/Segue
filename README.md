@@ -36,7 +36,7 @@ discover what you care about, builds talking points, and keeps a text-only histo
 - [x] **M5**: Events, contacts, conversations, history UI (search, delete, export, cascade removal).
 - [x] **M6**: Live coach in API (`/coach/suggest`), suggestion ratings, `/training/export`, laptop prototype integration with local fallback.
 - [x] **M7**: Production Dockerfiles, Helm/Kustomize, probes, HPA, local k3d deployment (`make k8s-up`, `make k8s-rollout`).
-- [ ] **M8**: Terraform for AWS, GitHub Actions OIDC deploy.
+- [x] **M8**: Terraform for AWS (EKS, RDS, S3, SQS, Cognito, ECR, Budgets), single-command deploy/destroy scripts, GitHub Actions OIDC deploy workflow.
 - [ ] **M9**: Observability, backups, rate limits, threat model.
 - [ ] **M10**: pgvector retrieval over facts (optional).
 - [ ] **M11**: ESP32-S3 glasses firmware + BLE/WebSocket protocol.

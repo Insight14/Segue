@@ -7,8 +7,8 @@
     "userInterfaceStyle": "light",
     "scheme": "convoglasses",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-asset"
     ]
   }
 }
-
