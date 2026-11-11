@@ -27,6 +27,8 @@ WORKDIR /app
 
 COPY --from=builder /install /usr/local
 COPY src/ /app/src/
+COPY migrations/ /app/migrations/
+COPY alembic.ini /app/alembic.ini
 
 ENV PYTHONPATH=/app/src
 ENV PYTHONUNBUFFERED=1

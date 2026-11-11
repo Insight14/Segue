@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: convo-glasses-config
+data:
+  ENVIRONMENT: "local"
+  S3_BUCKET: "convo-glasses-documents"
+  SQS_QUEUE_NAME: "convo-glasses-jobs"
+  S3_ENDPOINT_URL: "http://minio:9000"
+  SQS_ENDPOINT_URL: "http://elasticmq:9324"
+  AWS_DEFAULT_REGION: "us-east-1"
+

@@ -30,6 +30,9 @@ help:
 	@echo "up           Start services with Docker Compose"
 	@echo "down         Stop services with Docker Compose"
 	@echo "logs         Follow Docker Compose logs"
+	@echo "k8s-up       Start local Kubernetes stack with k3d"
+	@echo "k8s-down     Tear down local Kubernetes k3d cluster"
+	@echo "k8s-rollout  Trigger and verify zero-downtime rolling update on k3d"
 	@echo "clean        Clean build caches, logs, and temp files"
 
 install:
@@ -77,6 +80,15 @@ down:
 
 logs:
 	docker compose logs -f
+
+k8s-up:
+	bash infra/k8s/scripts/k3d-up.sh
+
+k8s-down:
+	bash infra/k8s/scripts/k3d-down.sh
+
+k8s-rollout:
+	bash infra/k8s/scripts/k3d-rollout.sh
 
 clean:
 	rm -rf .pytest_cache .ruff_cache .mypy_cache htmlcov .coverage

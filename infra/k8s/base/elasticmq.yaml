@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticmq
+  labels:
+    app.kubernetes.io/name: elasticmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticmq
+  template:
+    metadata:
+      labels:
+        app: elasticmq
+    spec:
+      containers:
+        - name: elasticmq
+          image: softwaremill/elasticmq-native:1.6.6
+          ports:
+            - name: sqs
+              containerPort: 9324
+          livenessProbe:
+            tcpSocket:
+              port: sqs
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: sqs
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticmq
+  labels:
+    app.kubernetes.io/name: elasticmq
+spec:
+  type: ClusterIP
+  ports:
+    - name: sqs
+      port: 9324
+      targetPort: sqs
+  selector:
+    app: elasticmq
+
