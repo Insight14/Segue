@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Convo Glasses",
+    "slug": "convo-glasses",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "convoglasses",
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

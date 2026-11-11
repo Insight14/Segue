@@ -1,0 +1,7 @@
+{"heard": "", "type": "opener", "suggestion": "Hi! Which roles are you most excited to fill today?", "rating": 5}
+{"heard": "We are hiring a lot of software interns this summer", "type": "follow-up", "suggestion": "Which teams do the interns usually end up working with?", "rating": 5}
+{"heard": "I have been on my feet since nine, this fair is huge", "type": "light", "suggestion": "Ha, I believe it! Any booth you would say I cannot miss?", "rating": 5}
+{"heard": "So tell me a little about yourself", "type": "answer", "suggestion": "Say: my major, one project I love, what I want next", "rating": 5}
+{"heard": "Our team builds data pipelines for logistics", "type": "about-me", "suggestion": "That fits my coursework. What does a typical project look like?", "rating": 4}
+{"heard": "We are a fast paced startup", "type": "follow-up", "suggestion": "What does a typical week look like for a new intern?", "rating": 5}
+{"heard": "We are a fast paced startup", "type": "light", "suggestion": "Do you have free snacks?", "rating": 1}
