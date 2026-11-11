@@ -48,6 +48,8 @@ lint:
 	@echo "=== Linting services/worker ==="
 	$(RUFF) check services/worker
 	$(MYPY) services/worker/src
+	@echo "=== Typechecking apps/mobile ==="
+	cd apps/mobile && npm run lint
 
 format:
 	$(RUFF) format services/api services/worker

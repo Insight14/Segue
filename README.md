@@ -32,7 +32,7 @@ discover what you care about, builds talking points, and keeps a text-only histo
 - [x] **M1**: Auth + profile and facts CRUD, Alembic migrations, OpenAPI client generation.
 - [x] **M2**: Resume upload (presigned S3), SQS job, worker fact extraction, review/confirm endpoints.
 - [x] **M3**: Guide agent (Discover & Prep modes, talking points, guardrails, 20-case eval set).
-- [ ] **M4**: Mobile app MVP (four tabs, Expo Go).
+- [x] **M4**: Mobile app MVP (four tabs: About Me, Coach, History, Live via Expo Router).
 - [ ] **M5**: Events, contacts, conversations, history UI.
 - [ ] **M6**: Live coach in API (`/coach/suggest`), suggestion ratings, laptop prototype integration.
 - [ ] **M7**: Production Dockerfiles, Helm/Kustomize, k3d deployment.
