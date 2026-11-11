@@ -1,3 +1,14 @@
+from api.schemas.agent import (
+    GenerateTalkingPointsRequest,
+    MessageResponse,
+    SendMessageRequest,
+    TalkingPointsContent,
+    TalkingPointsResponse,
+    TalkingPointStory,
+    ThreadCreateRequest,
+    ThreadMode,
+    ThreadResponse,
+)
 from api.schemas.document import (
     DocumentProcessResponse,
     DocumentResponse,
@@ -22,4 +33,13 @@ __all__ = [
     "DocumentUploadResponse",
     "DocumentProcessResponse",
     "DocumentResponse",
+    "ThreadMode",
+    "ThreadCreateRequest",
+    "SendMessageRequest",
+    "MessageResponse",
+    "ThreadResponse",
+    "TalkingPointStory",
+    "TalkingPointsContent",
+    "GenerateTalkingPointsRequest",
+    "TalkingPointsResponse",
 ]

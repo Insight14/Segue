@@ -18,6 +18,8 @@ export type FactKind =
 
 export type FactSource = "user" | "resume" | "agent";
 
+export type ThreadMode = "discover" | "prep";
+
 export interface ProfileResponse {
   headline?: string | null;
   status?: string | null;
@@ -99,6 +101,64 @@ export interface DocumentResponse {
   status: string;
   parsed_text?: string | null;
   error_message?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ThreadCreateRequest {
+  mode: ThreadMode;
+  title?: string;
+}
+
+export interface MessageResponse {
+  id: string;
+  thread_id: string;
+  role: string;
+  content: string;
+  proposed_fact?: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ThreadResponse {
+  id: string;
+  user_id: string;
+  mode: ThreadMode;
+  title: string;
+  messages: MessageResponse[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TalkingPointStory {
+  title: string;
+  situation: string;
+  action: string;
+  result: string;
+  fact_id?: string | null;
+}
+
+export interface TalkingPointsContent {
+  pitch_30s: string;
+  stories: TalkingPointStory[];
+  questions_to_ask: string[];
+  icebreakers: string[];
+  if_asked_about_weakness?: string | null;
+  gaps: string[];
+}
+
+export interface GenerateTalkingPointsRequest {
+  event_id?: string | null;
+  contact_id?: string | null;
+  notes?: string | null;
+}
+
+export interface TalkingPointsResponse {
+  id: string;
+  user_id: string;
+  event_id?: string | null;
+  contact_id?: string | null;
+  content: TalkingPointsContent;
   created_at: string;
   updated_at: string;
 }

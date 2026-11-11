@@ -6,10 +6,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import get_settings
+from api.routes.agent import router as agent_router
 from api.routes.documents import router as documents_router
 from api.routes.facts import router as facts_router
 from api.routes.health import router as health_router
 from api.routes.profile import router as profile_router
+from api.routes.talking_points import router as talking_points_router
 
 logger = logging.getLogger("convo-glasses-api")
 logging.basicConfig(
@@ -49,6 +51,8 @@ def create_app() -> FastAPI:
     app.include_router(profile_router)
     app.include_router(facts_router)
     app.include_router(documents_router)
+    app.include_router(agent_router)
+    app.include_router(talking_points_router)
 
     return app
 

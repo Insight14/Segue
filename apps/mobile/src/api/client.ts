@@ -6,9 +6,13 @@ import type {
   FactCreate,
   FactResponse,
   FactUpdate,
+  GenerateTalkingPointsRequest,
   ListFactsParams,
   ProfileResponse,
   ProfileUpdate,
+  TalkingPointsResponse,
+  ThreadCreateRequest,
+  ThreadResponse,
 } from "./types";
 
 export interface ApiClientConfig {
@@ -138,5 +142,37 @@ export class ConvoGlassesClient {
 
   async listDocuments(): Promise<DocumentResponse[]> {
     return this.fetch<DocumentResponse[]>("/v1/documents");
+  }
+
+  // Guide Agent Threads
+  async createThread(data: ThreadCreateRequest): Promise<ThreadResponse> {
+    return this.fetch<ThreadResponse>("/v1/agent/threads", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async listThreads(): Promise<ThreadResponse[]> {
+    return this.fetch<ThreadResponse[]>("/v1/agent/threads");
+  }
+
+  async getThread(id: string): Promise<ThreadResponse> {
+    return this.fetch<ThreadResponse>(`/v1/agent/threads/${id}`);
+  }
+
+  // Talking Points
+  async generateTalkingPoints(data: GenerateTalkingPointsRequest): Promise<TalkingPointsResponse> {
+    return this.fetch<TalkingPointsResponse>("/v1/talking-points", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTalkingPoint(id: string): Promise<TalkingPointsResponse> {
+    return this.fetch<TalkingPointsResponse>(`/v1/talking-points/${id}`);
+  }
+
+  async listTalkingPoints(): Promise<TalkingPointsResponse[]> {
+    return this.fetch<TalkingPointsResponse[]>("/v1/talking-points");
   }
 }
