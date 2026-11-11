@@ -29,7 +29,7 @@ discover what you care about, builds talking points, and keeps a text-only histo
 
 ### Milestones Progress
 - [x] **M0**: Monorepo scaffold, docker-compose (`api`, `worker`, `postgres`, `minio`, `elasticmq`), Makefile, lint + test CI.
-- [ ] **M1**: Auth + profile and facts CRUD, Alembic migrations, OpenAPI client generation.
+- [x] **M1**: Auth + profile and facts CRUD, Alembic migrations, OpenAPI client generation.
 - [ ] **M2**: Resume upload (presigned S3), SQS job, worker fact extraction.
 - [ ] **M3**: Guide agent (Discover & Prep modes, talking points, guardrails, eval set).
 - [ ] **M4**: Mobile app MVP (four tabs, Expo Go).

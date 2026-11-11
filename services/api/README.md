@@ -11,3 +11,4 @@ FastAPI companion backend for the Convo Glasses smart-glasses assistant.
 ```bash
 uvicorn api.main:app --reload --port 8000
 ```
+

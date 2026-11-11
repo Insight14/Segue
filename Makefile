@@ -1,7 +1,21 @@
-.PHONY: help install lint format test up down logs clean check
+.PHONY: help install lint format test up down logs clean check openapi migrate
 
+VENV_DIR ?= .venv
+ifeq ($(wildcard $(VENV_DIR)/bin/python),)
 PYTHON ?= python3
+PYTEST ?= pytest
+RUFF ?= ruff
+MYPY ?= mypy
+ALEMBIC ?= alembic
+else
+PYTHON ?= $(VENV_DIR)/bin/python
+PYTEST ?= $(VENV_DIR)/bin/pytest
+RUFF ?= $(VENV_DIR)/bin/ruff
+MYPY ?= $(VENV_DIR)/bin/mypy
+ALEMBIC ?= $(VENV_DIR)/bin/alembic
+endif
 UV ?= uv
+export COVERAGE_CORE ?= sysmon
 
 help:
 	@echo "Convo Glasses - Development Makefile"
@@ -10,6 +24,8 @@ help:
 	@echo "lint         Run code linters (ruff, mypy)"
 	@echo "format       Run code formatters (ruff format)"
 	@echo "test         Run unit and integration tests (pytest)"
+	@echo "openapi      Export OpenAPI schema and TypeScript definitions"
+	@echo "migrate      Run Alembic database migrations"
 	@echo "check        Run format check, lint, and tests"
 	@echo "up           Start services with Docker Compose"
 	@echo "down         Stop services with Docker Compose"
@@ -27,21 +43,27 @@ install:
 
 lint:
 	@echo "=== Linting services/api ==="
-	ruff check services/api
-	mypy services/api/src
+	$(RUFF) check services/api
+	$(MYPY) services/api/src
 	@echo "=== Linting services/worker ==="
-	ruff check services/worker
-	mypy services/worker/src
+	$(RUFF) check services/worker
+	$(MYPY) services/worker/src
 
 format:
-	ruff format services/api services/worker
-	ruff check --fix services/api services/worker
+	$(RUFF) format services/api services/worker
+	$(RUFF) check --fix services/api services/worker
 
 test:
 	@echo "=== Testing services/api ==="
-	pytest services/api
+	$(PYTEST) services/api
 	@echo "=== Testing services/worker ==="
-	pytest services/worker
+	$(PYTEST) services/worker
+
+openapi:
+	$(PYTHON) services/api/scripts/export_openapi.py
+
+migrate:
+	cd services/api && $(ALEMBIC) upgrade head
 
 check: lint test
 
@@ -57,3 +79,4 @@ logs:
 clean:
 	rm -rf .pytest_cache .ruff_cache .mypy_cache htmlcov .coverage
 	find . -type d -name "__pycache__" -exec rm -rf {} +
+

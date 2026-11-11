@@ -6,3 +6,4 @@ SQS background worker for asynchronous jobs (such as resume parsing in M2).
 ```bash
 python -m worker.main
 ```
+

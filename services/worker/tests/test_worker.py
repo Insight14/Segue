@@ -32,7 +32,8 @@ def test_worker_run_and_stop() -> None:
         return 0
 
     worker.process_one_batch = stop_worker  # type: ignore[method-assign]
-    worker.run()
+    with patch("time.sleep", return_value=None):
+        worker.run()
     assert worker.running is False
 
 

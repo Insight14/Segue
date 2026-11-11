@@ -40,3 +40,4 @@ jobs:
         run: |
           pytest services/api --cov=api --cov-report=xml
           pytest services/worker --cov=worker --cov-report=xml
+

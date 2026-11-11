@@ -27,3 +27,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD python -c "import time, sys; from pathlib import Path; f = Path('/tmp/worker_healthy'); sys.exit(0 if f.exists() and time.time() - float(f.read_text()) < 60 else 1)"
 
 CMD ["python", "-m", "worker.main"]
+
