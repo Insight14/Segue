@@ -34,7 +34,7 @@ discover what you care about, builds talking points, and keeps a text-only histo
 - [x] **M3**: Guide agent (Discover & Prep modes, talking points, guardrails, 20-case eval set).
 - [x] **M4**: Mobile app MVP (four tabs: About Me, Coach, History, Live via Expo Router).
 - [x] **M5**: Events, contacts, conversations, history UI (search, delete, export, cascade removal).
-- [ ] **M6**: Live coach in API (`/coach/suggest`), suggestion ratings, laptop prototype integration.
+- [x] **M6**: Live coach in API (`/coach/suggest`), suggestion ratings, `/training/export`, laptop prototype integration with local fallback.
 - [ ] **M7**: Production Dockerfiles, Helm/Kustomize, k3d deployment.
 - [ ] **M8**: Terraform for AWS, GitHub Actions OIDC deploy.
 - [ ] **M9**: Observability, backups, rate limits, threat model.

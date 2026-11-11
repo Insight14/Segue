@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import get_settings
 from api.routes.agent import router as agent_router
+from api.routes.coach import router as coach_router
 from api.routes.contacts import router as contacts_router
 from api.routes.conversations import router as conversations_router
 from api.routes.documents import router as documents_router
@@ -61,6 +62,7 @@ def create_app() -> FastAPI:
     app.include_router(contacts_router)
     app.include_router(conversations_router)
     app.include_router(suggestions_router)
+    app.include_router(coach_router)
 
     return app
 

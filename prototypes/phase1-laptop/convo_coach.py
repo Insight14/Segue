@@ -20,6 +20,8 @@ import re
 import textwrap
 import threading
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 import feedparser
@@ -181,15 +183,46 @@ class Display:
 
 # ---------------------------------------------------------------- the coach (LLM side)
 class Coach:
-    def __init__(self, preset, display, news):
+    def __init__(self, preset, display, news, api_url=None, api_token=None):
         self.cfg = LLM_PRESETS[preset]
-        key = os.environ.get(self.cfg["key_env"]) if self.cfg["key_env"] else "ollama"
-        if not key:
-            raise SystemExit(f"Set the {self.cfg['key_env']} environment variable first.")
-        self.client = OpenAI(base_url=self.cfg["base_url"], api_key=key)
+        self.api_url = (api_url or os.environ.get("CONVO_API_URL", "")).rstrip("/")
+        self.api_token = api_token or os.environ.get("CONVO_API_TOKEN", "dev-token-user-1")
+        self.conversation_id = None
         self.display, self.news = display, news
         self.examples = load_examples()
         self.suggestions, self.i = [], 0
+
+        # Try connecting to API if api_url is configured
+        if self.api_url:
+            try:
+                prof = self._api_request("GET", "/v1/profile")
+                facts = self._api_request("GET", "/v1/facts?confirmed=true")
+                conv = self._api_request("POST", "/v1/conversations", {"source": "laptop"})
+                if conv and "id" in conv:
+                    self.conversation_id = conv["id"]
+                    print(f"[api] connected to {self.api_url} (conversation {self.conversation_id[:8]})")
+            except Exception as err:
+                print(f"[api] connection failed ({err}), falling back to local mode")
+                self.api_url = None
+
+        key = os.environ.get(self.cfg["key_env"]) if self.cfg["key_env"] else "ollama"
+        if not key and not self.api_url:
+            raise SystemExit(f"Set the {self.cfg['key_env']} environment variable first.")
+        self.client = OpenAI(base_url=self.cfg["base_url"], api_key=key or "dummy")
+
+    def _api_request(self, method, path, payload=None):
+        if not self.api_url:
+            return None
+        url = f"{self.api_url}{path}"
+        data = json.dumps(payload).encode("utf-8") if payload is not None else None
+        headers = {"Content-Type": "application/json"}
+        if self.api_token:
+            headers["Authorization"] = f"Bearer {self.api_token}"
+            headers["X-User-Sub"] = self.api_token
+        req = urllib.request.Request(url, data=data, headers=headers, method=method)
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            body = resp.read().decode("utf-8")
+            return json.loads(body) if body else None
 
     def build_prompt(self, history):
         recent = history[-6:]
@@ -227,13 +260,35 @@ class Coach:
                 for s in data["suggestions"][:3] if s.get("text")]
 
     def refresh(self, history):
-        try:
-            self.suggestions = self.ask(history)
-        except Exception as err:
-            print(f"[llm] {type(err).__name__}: {err}")
-            return
+        # 1. Try API mode if available
+        if self.api_url and self.conversation_id:
+            try:
+                if history:
+                    self._api_request("POST", f"/v1/conversations/{self.conversation_id}/messages", {
+                        "speaker": "partner",
+                        "text": history[-1]
+                    })
+                res = self._api_request("POST", "/v1/coach/suggest", {
+                    "conversation_id": self.conversation_id,
+                    "recent_messages": history[-6:],
+                })
+                if res and "suggestions" in res:
+                    self.suggestions = [{"type": s["type"][:9], "text": clean(s["text"])} for s in res["suggestions"]]
+            except Exception as err:
+                print(f"[api] suggest failed ({err}) - falling back to local LLM")
+                self.suggestions = []
+
+        # 2. Local fallback if API not used or failed
+        if not self.suggestions:
+            try:
+                self.suggestions = self.ask(history)
+            except Exception as err:
+                print(f"[llm] {type(err).__name__}: {err}")
+                return
+
         if not self.suggestions:
             return
+
         self.i = 0
         with LOG_FILE.open("a") as f:  # review.py turns this into training data
             f.write(json.dumps({"time": time.time(), "heard": " ".join(history[-6:]),
@@ -260,6 +315,8 @@ class Coach:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--llm", choices=LLM_PRESETS, default="groq")
+    ap.add_argument("--api-url", default=os.environ.get("CONVO_API_URL"), help="URL of Convo Glasses API (e.g. http://localhost:8000)")
+    ap.add_argument("--api-token", default=os.environ.get("CONVO_API_TOKEN"), help="Bearer token for API auth")
     ap.add_argument("--port", help="serial port, e.g. COM5 or /dev/ttyUSB0 (auto-detected if omitted)")
     ap.add_argument("--no-arduino", action="store_true")
     ap.add_argument("--whisper", default="base.en", help="tiny.en / base.en / small.en (bigger = more accurate, slower)")
@@ -270,7 +327,7 @@ def main():
     print("Loading speech model (first run downloads it)...")
     model = WhisperModel(args.whisper, device="cpu", compute_type="int8")
     display = Display(args.port, not args.no_arduino)
-    coach = Coach(args.llm, display, News())
+    coach = Coach(args.llm, display, News(), api_url=args.api_url, api_token=args.api_token)
 
     audio_q = queue.Queue()
 

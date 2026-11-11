@@ -34,6 +34,15 @@ def check_safe_topics(text: str) -> None:
             )
 
 
+def validate_safe_topics(text: str) -> bool:
+    """Return True if safe, False if unsafe topic detected."""
+    try:
+        check_safe_topics(text)
+        return True
+    except GuardrailViolationError:
+        return False
+
+
 def validate_talking_points_guardrails(
     content: TalkingPointsContent,
     confirmed_fact_ids: set[str],
