@@ -162,3 +162,105 @@ export interface TalkingPointsResponse {
   created_at: string;
   updated_at: string;
 }
+
+// Milestone M5 Types
+
+export interface EventBase {
+  name: string;
+  date?: string | null;
+  type?: string | null;
+  notes?: string | null;
+}
+
+export interface EventCreate extends EventBase {}
+export interface EventUpdate extends Partial<EventBase> {}
+
+export interface EventResponse extends EventBase {
+  id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContactBase {
+  event_id?: string | null;
+  name: string;
+  company?: string | null;
+  role?: string | null;
+  notes?: string | null;
+  consent_noted?: boolean;
+}
+
+export interface ContactCreate extends ContactBase {}
+export interface ContactUpdate extends Partial<ContactBase> {}
+
+export interface ContactResponse extends ContactBase {
+  id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationMessageCreate {
+  speaker: "user" | "partner";
+  text: string;
+  seq?: number;
+}
+
+export interface ConversationMessageResponse {
+  id: string;
+  conversation_id: string;
+  seq: number;
+  speaker: string;
+  text: string;
+  created_at: string;
+}
+
+export interface SuggestionResponse {
+  id: string;
+  conversation_id: string;
+  after_message_seq: number;
+  type: string;
+  text: string;
+  shown: boolean;
+  selected: boolean;
+  rating?: number | null;
+  created_at: string;
+}
+
+export interface SuggestionUpdate {
+  shown?: boolean;
+  selected?: boolean;
+  rating?: number | null;
+}
+
+export interface ConversationCreate {
+  contact_id?: string | null;
+  event_id?: string | null;
+  source?: "phone" | "laptop" | "glasses";
+}
+
+export interface ConversationUpdate {
+  ended_at?: string | null;
+  summary?: string | null;
+}
+
+export interface ConversationResponse {
+  id: string;
+  user_id: string;
+  contact_id?: string | null;
+  event_id?: string | null;
+  started_at: string;
+  ended_at?: string | null;
+  summary?: string | null;
+  source: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationDetailResponse extends ConversationResponse {
+  contact?: ContactResponse | null;
+  event?: EventResponse | null;
+  messages: ConversationMessageResponse[];
+  suggestions: SuggestionResponse[];
+}

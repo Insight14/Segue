@@ -25,6 +25,10 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+# Alias for dependency injection
+get_db = get_db_session
+
+
 async def check_database_health() -> bool:
     """Check whether database connection is alive and responding."""
     try:

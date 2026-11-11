@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import selectinload
 
 from api.agent.discover import determine_next_discover_question, propose_fact_from_user_response
@@ -138,16 +138,17 @@ async def send_message_stream(
 
         full_reply = "".join(full_reply_chunks).strip()
 
-        # Save assistant message to database
-        assistant_msg = AgentMessage(
-            thread_id=thread.id,
-            role="assistant",
-            content=full_reply,
-            proposed_fact=proposed_fact,
-        )
-        db.add(assistant_msg)
-        await db.commit()
-        await db.refresh(assistant_msg)
+        # Save assistant message to database using dedicated session for the stream
+        save_factory = async_sessionmaker(bind=db.bind, expire_on_commit=False)
+        async with save_factory() as save_db:
+            assistant_msg = AgentMessage(
+                thread_id=thread.id,
+                role="assistant",
+                content=full_reply,
+                proposed_fact=proposed_fact,
+            )
+            save_db.add(assistant_msg)
+            await save_db.commit()
 
         if proposed_fact:
             yield f"data: {json.dumps({'proposed_fact': proposed_fact})}\n\n"

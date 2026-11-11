@@ -8,12 +8,19 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
+  ActivityIndicator,
 } from "react-native";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
+import { useApiClient } from "../../src/api/context";
 
 export default function LiveScreen() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
   const [inSession, setInSession] = useState(false);
   const [deviceConnected, setDeviceConnected] = useState(true);
+  const [activeConvId, setActiveConvId] = useState<string | null>(null);
 
   // Pre-session form
   const [contactName, setContactName] = useState("");
@@ -32,6 +39,67 @@ export default function LiveScreen() {
     "Mention your experience with zero-downtime DB migrations in Postgres",
   ]);
 
+  const startSessionMutation = useMutation({
+    mutationFn: async () => {
+      // 1. Create or link event if provided
+      let eventId: string | undefined = undefined;
+      if (eventName.trim()) {
+        const ev = await client.createEvent({ name: eventName.trim() });
+        eventId = ev.id;
+      }
+
+      // 2. Create contact
+      const contact = await client.createContact({
+        name: contactName.trim(),
+        company: company.trim() || undefined,
+        role: role.trim() || undefined,
+        notes: notes.trim() || undefined,
+        event_id: eventId,
+        consent_noted: true,
+      });
+
+      // 3. Create conversation session
+      const conv = await client.createConversation({
+        contact_id: contact.id,
+        event_id: eventId,
+        source: "phone",
+      });
+
+      return conv;
+    },
+    onSuccess: (conv) => {
+      setActiveConvId(conv.id);
+      setIsConsentModalOpen(false);
+      setConsentNoted(true);
+      setInSession(true);
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
+    onError: (err: Error) => Alert.alert("Session Error", err.message),
+  });
+
+  const endSessionMutation = useMutation({
+    mutationFn: async () => {
+      if (!activeConvId) return;
+      await client.updateConversation(activeConvId, {
+        ended_at: new Date().toISOString(),
+        summary: `Networking session with ${contactName}`,
+      });
+    },
+    onSuccess: () => {
+      setInSession(false);
+      setActiveConvId(null);
+      setContactName("");
+      setCompany("");
+      setRole("");
+      setNotes("");
+      setEventName("");
+      setConsentNoted(false);
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      Alert.alert("Session Saved", "Conversation transcript saved to your History.");
+    },
+    onError: (err: Error) => Alert.alert("End Session Failed", err.message),
+  });
+
   const handleStartPrompt = () => {
     if (!contactName.trim()) {
       Alert.alert("Contact Name Required", "Please enter the person's name.");
@@ -42,9 +110,7 @@ export default function LiveScreen() {
   };
 
   const handleConfirmConsentAndStart = () => {
-    setIsConsentModalOpen(false);
-    setConsentNoted(true);
-    setInSession(true);
+    startSessionMutation.mutate();
   };
 
   const handleStopSession = () => {
@@ -56,14 +122,7 @@ export default function LiveScreen() {
         {
           text: "End Session",
           style: "destructive",
-          onPress: () => {
-            setInSession(false);
-            setContactName("");
-            setCompany("");
-            setRole("");
-            setNotes("");
-            setConsentNoted(false);
-          },
+          onPress: () => endSessionMutation.mutate(),
         },
       ]
     );
@@ -154,9 +213,16 @@ export default function LiveScreen() {
           <TouchableOpacity
             style={styles.startButton}
             onPress={handleStartPrompt}
+            disabled={startSessionMutation.isPending}
           >
-            <Ionicons name="play-circle" size={20} color="#ffffff" />
-            <Text style={styles.startButtonText}>Begin Session</Text>
+            {startSessionMutation.isPending ? (
+              <ActivityIndicator size="small" color="#ffffff" />
+            ) : (
+              <>
+                <Ionicons name="play-circle" size={20} color="#ffffff" />
+                <Text style={styles.startButtonText}>Begin Session</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       ) : (
@@ -179,9 +245,16 @@ export default function LiveScreen() {
               <TouchableOpacity
                 style={styles.stopButton}
                 onPress={handleStopSession}
+                disabled={endSessionMutation.isPending}
               >
-                <Ionicons name="stop" size={16} color="#ffffff" />
-                <Text style={styles.stopButtonText}>End</Text>
+                {endSessionMutation.isPending ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <>
+                    <Ionicons name="stop" size={16} color="#ffffff" />
+                    <Text style={styles.stopButtonText}>End</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -250,10 +323,10 @@ export default function LiveScreen() {
               <TouchableOpacity
                 style={[
                   styles.confirmConsentButton,
-                  !consentNoted && styles.disabledButton,
+                  (!consentNoted || startSessionMutation.isPending) && styles.disabledButton,
                 ]}
                 onPress={handleConfirmConsentAndStart}
-                disabled={!consentNoted}
+                disabled={!consentNoted || startSessionMutation.isPending}
               >
                 <Text style={styles.confirmConsentText}>I Understand & Agree</Text>
               </TouchableOpacity>

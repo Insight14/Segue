@@ -1,8 +1,20 @@
 import type {
+  ContactCreate,
+  ContactResponse,
+  ContactUpdate,
+  ConversationCreate,
+  ConversationDetailResponse,
+  ConversationMessageCreate,
+  ConversationMessageResponse,
+  ConversationResponse,
+  ConversationUpdate,
   DocumentProcessResponse,
   DocumentResponse,
   DocumentUploadRequest,
   DocumentUploadResponse,
+  EventCreate,
+  EventResponse,
+  EventUpdate,
   FactCreate,
   FactResponse,
   FactUpdate,
@@ -10,6 +22,8 @@ import type {
   ListFactsParams,
   ProfileResponse,
   ProfileUpdate,
+  SuggestionResponse,
+  SuggestionUpdate,
   TalkingPointsResponse,
   ThreadCreateRequest,
   ThreadResponse,
@@ -174,5 +188,136 @@ export class ConvoGlassesClient {
 
   async listTalkingPoints(): Promise<TalkingPointsResponse[]> {
     return this.fetch<TalkingPointsResponse[]>("/v1/talking-points");
+  }
+
+  // Events
+  async listEvents(): Promise<EventResponse[]> {
+    return this.fetch<EventResponse[]>("/v1/events");
+  }
+
+  async getEvent(id: string): Promise<EventResponse> {
+    return this.fetch<EventResponse>(`/v1/events/${id}`);
+  }
+
+  async createEvent(data: EventCreate): Promise<EventResponse> {
+    return this.fetch<EventResponse>("/v1/events", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateEvent(id: string, data: EventUpdate): Promise<EventResponse> {
+    return this.fetch<EventResponse>(`/v1/events/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteEvent(id: string): Promise<void> {
+    return this.fetch<void>(`/v1/events/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  // Contacts
+  async listContacts(params?: { event_id?: string }): Promise<ContactResponse[]> {
+    const qs = params?.event_id ? `?event_id=${encodeURIComponent(params.event_id)}` : "";
+    return this.fetch<ContactResponse[]>(`/v1/contacts${qs}`);
+  }
+
+  async getContact(id: string): Promise<ContactResponse> {
+    return this.fetch<ContactResponse>(`/v1/contacts/${id}`);
+  }
+
+  async createContact(data: ContactCreate): Promise<ContactResponse> {
+    return this.fetch<ContactResponse>("/v1/contacts", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateContact(id: string, data: ContactUpdate): Promise<ContactResponse> {
+    return this.fetch<ContactResponse>(`/v1/contacts/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteContact(id: string): Promise<void> {
+    return this.fetch<void>(`/v1/contacts/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  // Conversations
+  async listConversations(params?: {
+    event_id?: string;
+    contact_id?: string;
+    q?: string;
+  }): Promise<ConversationResponse[]> {
+    const query = new URLSearchParams();
+    if (params?.event_id) query.set("event_id", params.event_id);
+    if (params?.contact_id) query.set("contact_id", params.contact_id);
+    if (params?.q) query.set("q", params.q);
+
+    const qs = query.toString();
+    return this.fetch<ConversationResponse[]>(`/v1/conversations${qs ? `?${qs}` : ""}`);
+  }
+
+  async getConversation(id: string): Promise<ConversationDetailResponse> {
+    return this.fetch<ConversationDetailResponse>(`/v1/conversations/${id}`);
+  }
+
+  async createConversation(data: ConversationCreate): Promise<ConversationResponse> {
+    return this.fetch<ConversationResponse>("/v1/conversations", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateConversation(
+    id: string,
+    data: ConversationUpdate
+  ): Promise<ConversationResponse> {
+    return this.fetch<ConversationResponse>(`/v1/conversations/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async addConversationMessage(
+    id: string,
+    data: ConversationMessageCreate
+  ): Promise<ConversationMessageResponse> {
+    return this.fetch<ConversationMessageResponse>(`/v1/conversations/${id}/messages`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteConversation(id: string): Promise<void> {
+    return this.fetch<void>(`/v1/conversations/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  async exportConversation(id: string, format: "json" | "text" = "json"): Promise<string> {
+    const res = await fetch(`${this.baseUrl}/v1/conversations/${id}/export?format=${format}`, {
+      headers: this.getAuthToken
+        ? { Authorization: `Bearer ${await this.getAuthToken()}` }
+        : {},
+    });
+    return res.text();
+  }
+
+  // Suggestions
+  async updateSuggestion(
+    id: string,
+    data: SuggestionUpdate
+  ): Promise<SuggestionResponse> {
+    return this.fetch<SuggestionResponse>(`/v1/suggestions/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
   }
 }

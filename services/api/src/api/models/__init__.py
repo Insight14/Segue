@@ -1,5 +1,6 @@
 from api.models.agent import AgentMessage, AgentThread
 from api.models.base import Base
+from api.models.conversation import Contact, Conversation, Event, Message, Suggestion
 from api.models.document import Document
 from api.models.fact import ProfileFact
 from api.models.profile import Profile
@@ -15,4 +16,9 @@ __all__ = [
     "AgentThread",
     "AgentMessage",
     "TalkingPoint",
+    "Event",
+    "Contact",
+    "Conversation",
+    "Message",
+    "Suggestion",
 ]
